@@ -13,6 +13,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="configuration" target="1.8" />
       <module name="domain" target="1.8" />
       <module name="helper" target="1.8" />
       <module name="models" target="1.8" />
