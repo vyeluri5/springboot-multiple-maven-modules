@@ -1,14 +1,11 @@
 package com.ecomm.web;
 
-import com.ecomm.domain.DaoProduct;
+import com.ecomm.domain.ProductRepository;
 import com.ecomm.exceptions.ProductNotFoundException;
 import com.ecomm.models.Product;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -16,32 +13,31 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@EnableAutoConfiguration
-@ComponentScan(basePackages = { "com.ecomm.domain", "com.ecomm.exceptions" })
-public class ProductController
+public class ProductController extends GenericRestController<Product>
 {
 	@Autowired
-	private DaoProduct productService;
+	private ProductRepository productRepository;
 
-	@RequestMapping(method = RequestMethod.GET, path = "/products")
+	@RequestMapping(method = RequestMethod.GET, path = "jpa/products")
 	public List<Product> getAllProducts()
 	{
-		return productService.findAll();
+		return productRepository.findAll();
 	}
 
-	@RequestMapping(method = RequestMethod.GET, path = "/products/{id}")
+	@RequestMapping(method = RequestMethod.GET, path = "jpa/products/{id}")
 	public Resource<Product> getProduct(@PathVariable int id)
 	{
-		Product product = productService.findOne(id);
+		Optional<Product> product = productRepository.findById(id);
 
-		if (product == null)
+		if (!product.isPresent())
 			throw new ProductNotFoundException("No such product exists!");
 
 		//Return all-products resource
 
-		Resource<Product> productsResource = new Resource<Product>(product);
+		Resource<Product> productsResource = new Resource<Product>(product.get());
 
 		ControllerLinkBuilder linkBuilder =
 				ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(this.getClass()).getAllProducts());
@@ -51,25 +47,20 @@ public class ProductController
 		return productsResource;
 	}
 
-	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, path = "/products")
+	@PostMapping(path = "/jpa/products")
 	public ResponseEntity<Object> createProduct(@Valid @RequestBody Product product)
 	{
 		URI location = ServletUriComponentsBuilder
-						.fromCurrentRequest()
-						.path("/{id}")
-						.buildAndExpand(productService.save(product).getId()).toUri();
+				.fromCurrentRequest()
+				.path("/{id}")
+				.buildAndExpand(productRepository.save(product).getId()).toUri();
 
 		return ResponseEntity.created(location).build();
-
 	}
 
-	@DeleteMapping(path = "/products/{id}")
+	@DeleteMapping(path = "/jpa/products/{id}")
 	public void deleteProduct(@PathVariable int id)
 	{
-		Product product = productService.deleteById(id);
-
-		if (product == null)
-			throw new ProductNotFoundException("No such product exists!");
+		productRepository.deleteById(id);
 	}
-
 }

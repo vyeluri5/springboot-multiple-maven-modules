@@ -26,10 +26,10 @@ public class DaoProduct
 
 	public Product save(Product prod)
 	{
-		if (prod.getId() == null)
-		{
-			prod.setId(++productCount);
-		}
+//		if (prod.getId() == null)
+//		{
+//			prod.setId(++productCount);
+//		}
 
 		products.add(prod);
 
@@ -45,10 +45,10 @@ public class DaoProduct
 
 		for (Product i : products)
 		{
-			if (i.getId() == id)
-			{
-				return i;
-			}
+//			if (i.getId() == id)
+//			{
+//				return i;
+//			}
 		}
 		return null;
 	}
@@ -58,12 +58,12 @@ public class DaoProduct
 		Iterator<Product> iterator = products.iterator();
 		while (iterator.hasNext())
 		{
-			Product prod = iterator.next();
-			if (prod.getId() == id)
-			{
-				iterator.remove();
-				return prod;
-			}
+//			Product prod = iterator.next();
+//			if (prod.getId() == id)
+//			{
+//				iterator.remove();
+//				return prod;
+//			}
 		}
 		return null;
 	}
